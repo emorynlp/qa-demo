@@ -51,4 +51,4 @@ if __name__ == '__main__':
     if not options.input or not options.topk:
         raise ValueError('Pass \'-i\' option')
 
-    evaluate(options.input, options.topk)
+    evaluate(options.input, int(options.topk))
