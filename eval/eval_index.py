@@ -30,8 +30,8 @@ def evaluate(filename, top_k=5):
         if q_section_found:
             sections_found += 1
 
-    print 'Articles matched: %d (%.2f)' % (articles_found, articles_found/float(len(content))*100)
-    print 'Sections matched: %d (%.2f)' % (sections_found, sections_found/float(len(content))*100)
+    print 'Articles matched: %d (%.2f%%)' % (articles_found, articles_found/float(len(content))*100)
+    print 'Sections matched: %d (%.2f%%)' % (sections_found, sections_found/float(len(content))*100)
 
 
 if __name__ == '__main__':
