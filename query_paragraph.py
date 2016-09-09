@@ -49,13 +49,14 @@ def experiment(filename, es_server, es_index, es_type, query_field='text', top_k
         if q_section_found:
             sections_found += 1
 
-    print 'Articles matched: %d' % articles_found
-    print 'Sections matched: %d' % sections_found
+    print 'Articles matched: %d (%.2f)' % (articles_found, articles_found/float(len(res))*100)
+    print 'Sections matched: %d (%.2f)' % (sections_found, sections_found/float(len(res))*100)
 
-    f_path = '/'.join(os.path.realpath(__file__).split('/')[:-1])
-    output_file = f_path + '/' + filename.rstrip('.pickle') + '_' + es_index + '_top' + str(top_k) + '.pickle'
-    print 'Dumping top_k results file to: %s' % output_file
-    pickle.dump(res, open(output_file, 'wb'))
+    o_path = '/'.join(os.path.realpath(__file__).split('/')[:-1]) + '/'
+    o_file = filename.split('/')[-1].rstrip('.pickle') + '_' + es_index + '_top' + str(top_k) + '.pickle'
+
+    print 'Dumping top_k results file to: %s' % (o_path + o_file)
+    pickle.dump(res, open(o_path + o_file, 'wb'))
 
 
 if __name__ == '__main__':
