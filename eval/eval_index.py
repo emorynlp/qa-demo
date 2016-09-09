@@ -2,16 +2,8 @@
 This scripts evaluates top-k found from index on article and section level.
 """
 
-import os
-import sys
 from optparse import OptionParser
 import cPickle as pickle
-
-reload(sys)
-sys.path.insert(0, '../')
-sys.setdefaultencoding('utf-8')
-
-from es.query import QuestionQuery, QuestionQueryBuilder
 
 
 def evaluate(filename, top_k=5):
