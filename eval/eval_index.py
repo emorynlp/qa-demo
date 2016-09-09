@@ -38,12 +38,17 @@ if __name__ == '__main__':
     parser = OptionParser(usage="usage: %prog [options]")
     parser.add_option('-i', '--input',
                       action='store',
-                      dest='topk_file',
+                      dest='input',
                       default=None,
-                      help="File with top-k results")
+                      help="File with hits from elasticsearch")
+    parser.add_option('-k', '--topk',
+                      action='store',
+                      dest='topk',
+                      default=5,
+                      help="What topk to use")
     (options, args) = parser.parse_args()
 
-    if not options.topk_file:
+    if not options.input or not options.topk:
         raise ValueError('Pass \'-i\' option')
 
-    evaluate(options.topk_file)
+    evaluate(options.input, options.topk)
