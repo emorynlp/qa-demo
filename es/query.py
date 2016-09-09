@@ -74,7 +74,7 @@ class QuestionQueryBuilder:
     def __init__(self):
         self.qp = QueryPreprocessor()
 
-    def _build_query(self, q_entity, fields):
+    def _build_query(self, q_entity, fields, top_k):
         di = dict()
         di['question'] = q_entity['question']
         di['article'] = q_entity['article']
@@ -83,26 +83,27 @@ class QuestionQueryBuilder:
         if 'paragraph_id' in q_entity:
             di['paragraph_id'] = q_entity['paragraph_id']
 
-        di['query_body'] = {"query":
+        di['query_body'] = {'query':
             {
                 'multi_match': {
                     'query': self.qp.preprocess_query(q_entity['question']),
                     'fields': fields
                 }
-            }
+            },
+            'size': top_k
         }
 
         return di
 
-    def build_query(self, data, fields):
+    def build_query(self, data, fields, top_k):
         if type(data) == list:
             query_list = []
             for d in data:
-                query_list.append(self._build_query(d, fields))
+                query_list.append(self._build_query(d, fields, top_k))
 
             return query_list
         elif type(data) == dict:
-            return self._build_query(data, fields)
+            return self._build_query(data, fields, top_k)
         else:
             raise Exception('Unsupported arg type in build_query: %s' % type(data))
 
@@ -119,7 +120,7 @@ class QuestionQuery:
         for d in data:
             es_results = es.search(index=self.es_index, doc_type=self.es_type, body=d['query_body'])
             s_results = []
-            for j in es_results["hits"]["hits"][:top_k]:
+            for j in es_results['hits']['hits'][:top_k]:
                 s_results.append({'article': j['_source']['article'],
                                   'section': j['_source']['section'],
                                   'paragraph_id': j['_source']['paragraph_id']})

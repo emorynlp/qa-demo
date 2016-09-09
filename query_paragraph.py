@@ -29,7 +29,7 @@ def experiment(filename, es_server, es_index, es_type, query_field='text', top_k
     sections_found = 0
 
     qqb = QuestionQueryBuilder()
-    queries = qqb.build_query(content, [query_field])
+    queries = qqb.build_query(content, [query_field], top_k)
 
     qq = QuestionQuery(es_server, es_index, es_type)
     res = qq.query_index(queries, top_k)
