@@ -63,7 +63,6 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
     for root, dir_names, file_names in os.walk(directory):
         if pickle_suffix:
             for filename in fnmatch.filter(file_names, pickle_suffix):
-                print file_names
                 matched_files.append(os.path.join(root, filename))
         else:
             for filename in file_names:
@@ -74,7 +73,6 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
     all_articles = 0
     articles_indexed = 0
     sections_indexed = 0
-    paragraphs_indexed = 0
 
     print 'Using the following prefixes of excluded articles: %s' % EXCLUDED_ARTICLE_PREFIXES
 
@@ -108,18 +106,22 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
                 else:
                     section_suffix = ''
 
-                for text, lemma in zip(section['paragraphs'], section['paragraphs_tokenized']):
-                    paragraphs_indexed += 1
-                    body = {'text': query_preprocessor.fix_spacing(text),
-                            'lemma_text': query_preprocessor.fix_spacing(lemma),
-                            'article': article['article'],
-                            'section': section['name'],
-                            'paragraph_id': article['article'].replace(' ', '_') + '-' +
-                                            section['name'].replace(' ', '_')}
+                s_text = ""
+                s_t_text = ""
+                for text, t_text in zip(section['paragraphs'], section['paragraphs_tokenized']):
+                    s_text += text + ' '
+                    s_t_text += t_text + ' '
 
-                    es.index(index=es_index, doc_type=es_type,
-                             body=body,
-                             request_timeout=450)
+                body = {'text': query_preprocessor.fix_spacing(s_text),
+                        'tokenized_text': query_preprocessor.fix_spacing(s_t_text),
+                        'article': article['article'],
+                        'section': section['name'],
+                        'section_id': article['article'].replace(' ', '_') + '-' +
+                                      section['name'].replace(' ', '_')}
+
+                es.index(index=es_index, doc_type=es_type,
+                         body=body,
+                         request_timeout=450)
 
         iteration += 1
         sys.stdout.write("\rFiles parsed: %d/%s" % (iteration, all_files))
