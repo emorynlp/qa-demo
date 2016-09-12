@@ -149,7 +149,7 @@ if __name__ == '__main__':
                       action='store',
                       dest='file_suffix',
                       default=None,
-                      help="Suffix for pickles that will be considered in `directory'")
+                      help="Suffix for pickles that will be considered in `directory' (Unix wildcard)")
     parser.add_option('-e', '--elasticserver',
                       action='store',
                       dest='es_server',

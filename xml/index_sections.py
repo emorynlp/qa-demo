@@ -26,11 +26,14 @@ mapping = '''
             "type": "string",
             "index": "not_analyzed"
           },
-          "paragraph_id": {
+          "section_id": {
             "type": "string",
             "index": "not_analyzed"
           },
           "text": {
+            "type": "string"
+          },
+          "tokenized_text": {
             "type": "string"
           },
           "lemma_text": {
@@ -60,6 +63,7 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
     for root, dir_names, file_names in os.walk(directory):
         if pickle_suffix:
             for filename in fnmatch.filter(file_names, pickle_suffix):
+                print file_names
                 matched_files.append(os.path.join(root, filename))
         else:
             for filename in file_names:
@@ -100,7 +104,7 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
 
                 # Set this additional anti-duplicated suffix if necessary (only for duplicates)
                 if section['name'] in sections_id and sections_id[section['name']] > 1:
-                    section_suffix = '_' + sections_id[section['name']]
+                    section_suffix = '_' + str(sections_id[section['name']])
                 else:
                     section_suffix = ''
 
@@ -145,7 +149,7 @@ if __name__ == '__main__':
                       action='store',
                       dest='file_suffix',
                       default=None,
-                      help="Suffix for pickles that will be considered in `directory'")
+                      help="Suffix for pickles that will be considered in `directory' (Unix wildcard)")
     parser.add_option('-e', '--elasticserver',
                       action='store',
                       dest='es_server',
