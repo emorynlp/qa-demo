@@ -121,9 +121,17 @@ class QuestionQuery:
             es_results = es.search(index=self.es_index, doc_type=self.es_type, body=d['query_body'])
             s_results = []
             for j in es_results['hits']['hits'][:top_k]:
-                s_results.append({'article': j['_source']['article'],
-                                  'section': j['_source']['section'],
-                                  'paragraph_id': j['_source']['paragraph_id']})
+                di = dict()
+                di['article'] = j['_source']['article']
+                di['section'] = j['_source']['section']
+
+                if 'paragraph_id' in j['_source']:
+                    di['paragraph_id'] = j['_source']['paragraph_id']
+
+                if 'section_id' in j['_source']:
+                    di['section_id'] = j['_source']['section_id']
+
+                s_results.append(di)
 
             all_results.append({'question_entity': d, 'hits': s_results})
 
