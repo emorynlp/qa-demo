@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block body %}
+  
+    <form action="{{ url_for('show_results') }}" method=post>
+      <dl>
+        <dt>Type your question here:
+        <dd><input type=text size=50 name=question class="mytext">
+        <dd><input type=submit name="action" value=search  class="mybutton" >       
+      </dl>
+    </form>
+</br>
+</br>
+</br>
+ <div class="dropdown">
+  <button class="dropbtn">Dropdown1</button>
+  <div class="dropdown-content">
+    <a href="#">Option 1</a>
+    <a href="#">Option 2</a>
+    <a href="#">Option 3</a>
+  </div>
+</div>
+<div class="dropdown">
+  <button class="dropbtn">Dropdown2</button>
+  <div class="dropdown-content">
+    <a href="#">Option 1</a>
+    <a href="#">Option 2</a>
+    <a href="#">Option 3</a>
+  </div>
+</div>
+<div class="dropdown">
+  <button class="dropbtn">Dropdown3</button>
+  <div class="dropdown-content">
+    <a href="#">Option 1</a>
+    <a href="#">Option 2</a>
+    <a href="#">Option 3</a>
+  </div>
+</div>
+  {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+  {% endfor %}
+
+{% endblock %}
