@@ -41,4 +41,4 @@ if __name__ == '__main__':
     print len(train_samples[0][0])
 
     cnn = CNNModel()
-    cnn.fit(train_samples, train_labels, dev_samples, dev_labels)
+    cnn.fit(train_samples[:100], train_labels[:100], dev_samples[:20], dev_labels[:20])

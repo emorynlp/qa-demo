@@ -48,12 +48,13 @@ class CNNModel:
 
         for _ in os.listdir(os.path.dirname(os.path.realpath(__file__))):
             if _.endswith('.tmp.h5'):
-                os.remove(_)
+                print _
+                os.remove(os.path.dirname(os.path.realpath(__file__)) + '/' + _)
 
-        self.model.load_weights('cnn1_model.h5')
+        self.model.load_weights(os.path.dirname(os.path.realpath(__file__)) + '/cnn1_model.h5')
 
     def score(self, x_test, y_test):
-        predictions = self.predict(x_test)
+        predictions = self.predict_classes(x_test)
 
         if len(predictions) != len(y_test):
             raise ValueError('x_test is not the same length as y_test')
@@ -65,3 +66,13 @@ class CNNModel:
 
     def predict_classes(self, x_test):
         return self.model.predict_classes(x_test)
+
+    def load_model(self, file_path):
+        try:
+            self.model.load_weights(file_path)
+        except IOError:
+            raise IOError("Can't load the file")
+
+    def save_model(self, name):
+        self.model.save_weights(name + '.model', overwrite=True)
+        logger.info(name + '.model')
