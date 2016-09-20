@@ -1,0 +1,66 @@
+body            { font-family: sans-serif; background: #eee; }
+a, h1, h2       { color: #377ba8; }
+h1, h2          { font-family: 'Georgia', serif; margin: 0; }
+h1              { border-bottom: 2px solid #eee; font-size: 3em; text-align:center;}
+h2              { font-size: 1.2em; }
+dd              { display:inline-block; float:left; font-size: 1.5em; }
+dt              { font-family: 'Georgia', serif; text-align:center; color: #377ba8; font-size: 1.5em; }
+.page           { margin: 2em auto; width: 50em; border: 5px solid #ccc;
+                  padding: 10em; background: white; }
+                  
+.flash          { background: #cee5F5; padding: 1em;
+                  border: 1px solid #aacbe2; font-size: 2em; font-family: 'Georgia', serif; }
+.error          { background: #f0d6d6; padding: 0.5em; }
+.right          { float: right;}
+.mytext         {   width: 625px; height:50px; font-size:40px;}
+.mybutton       {  height:50px; width: 75px; float:right; font-size : 20px;}
+
+
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    left:28%;
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
