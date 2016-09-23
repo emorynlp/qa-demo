@@ -7,13 +7,14 @@ sys.setdefaultencoding('UTF-8')
 
 
 class Word2Vec:
-    def __init__(self, word2vec_filename):
+    def __init__(self, word2vec_filename, vocabulary):
         self.filename = word2vec_filename
+        self.vocabulary = vocabulary
         self._load_base_file()
-        self.dictionary = len(self.word_vectors.values()[0])
+        self._add_unknown_words()
 
     def _load_base_file(self):
-        word_vectors = {}
+        word_vectors = dict()
         print ("opening file: %s" % self.filename)
 
         with open(self.filename, "rb") as f:
@@ -35,7 +36,7 @@ class Word2Vec:
                 word_vectors[word] = np.fromstring(f.read(binary_len), dtype='float32')
 
         print("num words already in word2vec: %d" % len(word_vectors))
-        print("vocabulary size: %d" % len(word_vectors))
+        print("vocabulary size: %d" % len(self.vocabulary))
         self.word_vectors = word_vectors
 
     def get_word_vector(self, word):
@@ -43,6 +44,14 @@ class Word2Vec:
             return self.word_vectors[word]
         except KeyError:
             return None
+
+    def _add_unknown_words(self):
+        not_present = 0
+        for word in self.vocabulary:
+            if word not in self.word_vectors:
+                self.word_vectors[word] = np.random.uniform(-0.25, 0.25, 300)
+                not_present += 1
+        print ('randomized words: %d out of %d' % (not_present, len(self.vocabulary)))
 
     def get_similar_words(self, word, n=5):
         similarity_list = []
