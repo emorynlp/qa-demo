@@ -9,11 +9,11 @@ dt              { font-family: 'Georgia', serif; text-align:center; color: #377b
                   padding: 10em; background: white; }
                   
 .flash          { background: #cee5F5; padding: 1em;
-                  border: 1px solid #aacbe2; font-size: 2em; font-family: 'Georgia', serif; }
+                  border: 1px solid #aacbe2; font-size: 1em; font-family: 'Georgia', serif; margin-top: 10px; }
 .error          { background: #f0d6d6; padding: 0.5em; }
 .right          { float: right;}
-.mytext         {   width: 625px; height:50px; font-size:40px;}
-.mybutton       {  height:50px; width: 75px; float:right; font-size : 20px;}
+.mytext         {   width: 625px; height:45px; font-size:40px;}
+.mybutton       {  height:45px; width: 75px; float:right; font-size : 20px;}
 
 
 
