@@ -82,7 +82,7 @@ class Utils:
 
             index_begin = index_end
 
-        map = float(avg_prec) / len(l)
+        map = float(avg_prec) / len(q_list)
         return map
 
     @staticmethod

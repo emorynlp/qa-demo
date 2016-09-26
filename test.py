@@ -61,10 +61,6 @@ if __name__ == '__main__':
     idf = IDF(stopwords)
     idf.fit(train_questions+dev_questions+test_questions)
 
-    # pprint(sorted(idf.idf.items(), key=operator.itemgetter(1))[:100])
-    # print '\n\n\n\n'
-    # pprint(sorted(idf.idf.items(), key=operator.itemgetter(1), reverse=True)[:100])
-
     ###########
 
     # Prepare features of text
@@ -149,10 +145,9 @@ if __name__ == '__main__':
     test_samples_cnn = [np.array(test_samples_cnn_q), np.array(test_samples_cnn_s)]
 
     cnn = ASSCNNModel()
-    # cnn.model.fit(train_samples_cnn, train_labels_cnn, batch_size=32, nb_epoch=1)
-    # exit(0)
 
     nb_epoch = 10
+    results = []
 
     for i in xrange(nb_epoch):
         cnn.fit(train_samples_cnn, train_labels_cnn, dev_samples_cnn, dev_labels_cnn,
@@ -160,10 +155,12 @@ if __name__ == '__main__':
 
         train_cnn_preds = cnn.predict_proba(train_samples_cnn)
         dev_cnn_preds = cnn.predict_proba(dev_samples_cnn)
+        test_cnn_preds = cnn.predict_proba(test_samples_cnn)
 
         lr = LRModel()
         train_lr_merged_samples = []
         dev_lr_merged_samples = []
+        test_lr_merged_samples = []
 
         for cnn_s, lr_s in zip(train_cnn_preds, train_samples_lr):
             sample = lr_s[:]
@@ -173,28 +170,33 @@ if __name__ == '__main__':
             sample = lr_s[:]
             sample.append(cnn_s[0])
             dev_lr_merged_samples.append(sample)
+        for cnn_s, lr_s in zip(test_cnn_preds, test_samples_lr):
+            sample = lr_s[:]
+            sample.append(cnn_s[0])
+            test_lr_merged_samples.append(sample)
 
         lr.fit(train_lr_merged_samples, train_labels_lr)
-        y_pred = lr.model.predict_proba(dev_lr_merged_samples)
-        y_pred = np.array([i[-1] for i in y_pred])
+        y_pred_dev = lr.model.predict_proba(dev_lr_merged_samples)
+        y_pred_dev = np.array([j[-1] for j in y_pred_dev])
+        y_pred_test = lr.model.predict_proba(test_lr_merged_samples)
+        y_pred_test = np.array([j[-1] for j in y_pred_test])
+
+        dev_mrr = Utils.mrr(dev_labels_grouped, dev_labels_lr, y_pred_dev)
+        dev_map = Utils.map(dev_labels_grouped, dev_labels_lr, y_pred_dev)
+        test_mrr = Utils.mrr(test_labels_grouped, test_labels_lr, y_pred_test)
+        test_map = Utils.map(test_labels_grouped, test_labels_lr, y_pred_test)
+
+        results.append(['epoch %d, dev map: %.2f mrr: %.2f, test map: %.2f mrr: %.2f' %
+                       (i, dev_map, dev_mrr, test_map, test_mrr),
+                       dev_map,
+                       dev_mrr,
+                       test_map,
+                       test_mrr])
+
         print '\n\n'
-        print y_pred[:5]
-        print 'mrr: %.2f' % Utils.mrr(dev_labels_grouped, dev_labels_lr, y_pred)
+        print y_pred_dev[:5]
+        print 'dev mrr: %.2f' % dev_mrr
 
-
-
-    # print 'test CNN with LR:'
-    # lr = LRModel()
-    #
-    # for cnn_s, lr_s in zip(train_cnn_preds, train_samples_lr):
-    #     lr_s.append(cnn_s[0])
-    # for cnn_s, lr_s in zip(test_cnn_preds, test_samples_lr):
-    #     lr_s.append(cnn_s[0])
-    #
-    # print train_samples_lr[:5]
-    #
-    # lr.fit(train_samples_lr, train_labels_lr)
-    # y_pred = lr.model.predict_proba(test_samples_lr)
-    # y_pred = np.array([i[-1] for i in y_pred])
-    # print y_pred[:5]
-    # print 'mrr: %.2f' % Utils.mrr(test_labels_grouped, test_labels_lr, y_pred)
+    sorted_results = sorted(results, key=lambda res: res[1], reverse=True)  # according to dev map
+    for r in sorted_results[:5]:
+        print 'LR, %s' % r[0]
