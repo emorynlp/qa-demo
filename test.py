@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
     cnn = ASSCNNModel()
 
-    nb_epoch = 10
+    nb_epoch = 3
     results = []
 
     for i in xrange(nb_epoch):

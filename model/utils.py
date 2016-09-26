@@ -1,8 +1,7 @@
 import numpy as np
-from string import punctuation
 
 
-class Utils:
+class ModelUtils:
     @staticmethod
     def build_text_image(word2vec, words, embedding_size=300, padding=0):
         word_vectors = []
@@ -82,8 +81,8 @@ class Utils:
 
             index_begin = index_end
 
-        map = float(avg_prec) / len(q_list)
-        return map
+        omap = float(avg_prec) / len(q_list) * 100
+        return omap
 
     @staticmethod
     def precision_recall_f1(y_true, y_pred):
