@@ -1,15 +1,7 @@
 """
-This script performs a full experiment on provided training data for ASS task.
+This script performs a full experiment on provided training data for AT task.
 Next, it evaluates the results on test data and shows top-k results.
 """
-
-fixed_seed_num = 1234
-import numpy as np
-np.random.seed(fixed_seed_num)
-import random
-random.seed(fixed_seed_num)
-import tensorflow
-tensorflow.set_random_seed(fixed_seed_num)
 
 import sys
 import cPickle as pickle
@@ -24,16 +16,18 @@ sys.setdefaultencoding('utf-8')
 
 from data.reader import TSVReader
 from model.embedding import Word2Vec
-from model.cnn import ASSCNNModel
+from model.cnn import ATCNNModel
 from model.lr import LRModel
 from model.idf import IDF
 from model.utils import ModelUtils
 from feature.sentence import SentenceFeature
 
 
+from pprint import pprint
+
 def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_filters, top, metric):
-    if metric not in ['map', 'mrr']:
-        raise ValueError('metric should be either "map" or "mrr"')
+    if metric not in ['precision', 'recall', 'f1']:
+        raise ValueError('metric should be either "precision", "recall" or "f1"')
 
     stopwords_file = '../model/short-stopwords.txt'
 
@@ -151,15 +145,14 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
 
     test_samples_cnn = [np.array(test_samples_cnn_q), np.array(test_samples_cnn_s)]
 
-    cnn = ASSCNNModel(nb_row=s_size, nb_filters=nb_filters)
+    cnn = ATCNNModel(nb_row=s_size, nb_filters=nb_filters)
 
     results = []
 
     for i in xrange(nb_epoch):
         # One iteration is a single epoch run of NN and dev test on LR
-
         cnn.fit(train_samples_cnn, train_labels_cnn, dev_samples_cnn, dev_labels_cnn,
-                accuracy_metric=ModelUtils.mrr, q_list=dev_labels_grouped,
+                q_list=dev_labels_grouped,
                 nb_epoch=1, batch_size=batch_size)
 
         train_cnn_preds = cnn.predict_proba(train_samples_cnn)
@@ -190,40 +183,37 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
         y_pred_test = lr.model.predict_proba(test_lr_merged_samples)
         y_pred_test = np.array([j[-1] for j in y_pred_test])
 
-        dev_mrr = ModelUtils.mrr(dev_labels_grouped, dev_labels_lr, y_pred_dev)
-        dev_map = ModelUtils.map(dev_labels_grouped, dev_labels_lr, y_pred_dev)
-        test_mrr = ModelUtils.mrr(test_labels_grouped, test_labels_lr, y_pred_test)
-        test_map = ModelUtils.map(test_labels_grouped, test_labels_lr, y_pred_test)
+        dev_e_results = ModelUtils.precision_recall_f1(dev_labels_grouped, dev_labels_lr, y_pred_dev)
+        test_e_results = ModelUtils.precision_recall_f1(test_labels_grouped, test_labels_lr, y_pred_test)
 
-        results.append(['epoch %d, dev map: %.2f mrr: %.2f, test map: %.2f mrr: %.2f' %
-                       (i, dev_map, dev_mrr, test_map, test_mrr),
-                       dev_map,
-                       dev_mrr,
-                       test_map,
-                       test_mrr])
+        for dev_i, test_i in zip(dev_e_results, test_e_results):
+            results .append(('epoch %d, thre: %.2f, '
+                             'dev prec: %.2f, rec: %.2f, f1: %.2f, '
+                             'test prec: %.2f rec: %.2f f1: %.2f' %
+                             (i, dev_i[1], dev_i[2], dev_i[3], dev_i[4], test_i[2], test_i[3], test_i[4]),
+                             dev_i[1], dev_i[2], dev_i[3], dev_i[4], test_i[2], test_i[3], test_i[4]))
 
-        print 'dev mrr: %.2f' % dev_mrr
-
-    if metric == 'map':
-        sorted_results = sorted(results, key=lambda res: res[1], reverse=True)  # according to dev map
+    if metric == 'precision':
+        sorted_results = sorted(results, key=lambda res: res[2], reverse=True)
+    elif metric == 'recall':
+        sorted_results = sorted(results, key=lambda res: res[3], reverse=True)
     else:
-        sorted_results = sorted(results, key=lambda res: res[2], reverse=True)  # according to dev map
+        sorted_results = sorted(results, key=lambda res: res[4], reverse=True)
 
-    print 'top %d results' % top
-    for r in sorted_results[:top]:
-        print 'LR, %s' % r[0]
+    for i in sorted_results[:top]:
+        print 'LR, %s' % i[0]
 
-    conf_dict = {'train_file': train_file,
-                 'dev_file': dev_file,
-                 'test_file': test_file,
-                 'nb_epoch': nb_epoch,
-                 'batch_size': batch_size,
-                 's_size': s_size,
-                 'nb_filters': nb_filters,
-                 'metric': metric}
-    filename = __file__.rstrip('.py') + '_' + datetime.datetime.now().strftime("%Y_%m_%d__%H_%M") + '_report.pickle'
-
-    pickle.dump((conf_dict, results, sorted_results), open(filename, 'wb'), protocol=2)
+    # conf_dict = {'train_file': train_file,
+    #              'dev_file': dev_file,
+    #              'test_file': test_file,
+    #              'nb_epoch': nb_epoch,
+    #              'batch_size': batch_size,
+    #              's_size': s_size,
+    #              'nb_filters': nb_filters,
+    #              'metric': metric}
+    # filename = __file__.rstrip('.py') + '_' + datetime.datetime.now().strftime("%Y_%m_%d__%H_%M") + '_report.pickle'
+    #
+    # pickle.dump((conf_dict, results, sorted_results), open(filename, 'wb'), protocol=2)
 
 
 if __name__ == '__main__':

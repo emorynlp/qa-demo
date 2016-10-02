@@ -1,0 +1,7 @@
+{
+  "backend_host": "127.0.0.1",
+  "frontend_host": "localhost",
+  "backend_port": "9500",
+  "frontend_port": "6000",
+  "frontend_key": "<ENTER_YOUR_KEY>"
+}

@@ -1,14 +1,11 @@
 from data.reader import TSVReader
-from model.utils import Utils
 from model.embedding import Word2Vec
 from model.cnn import ASSCNNModel
 from model.lr import LRModel
 from model.idf import IDF
 from feature.sentence import SentenceFeature
-from pprint import pprint
-from model.utils import Utils
+from model.utils import ModelUtils
 import numpy as np
-import pickle
 
 if __name__ == '__main__':
     train_file = 'SelQA-ass-train.txt'
@@ -96,7 +93,7 @@ if __name__ == '__main__':
 
     y_pred = lr.model.predict_proba(test_samples_lr)
     y_pred = np.array([i[-1] for i in y_pred])
-    print 'mrr: %.2f' % Utils.mrr(test_labels_grouped, test_labels_lr, y_pred)
+    print 'mrr: %.2f' % ModelUtils.mrr(test_labels_grouped, test_labels_lr, y_pred)
 
     print 'Now trying to train CNN and try it with LR:'
 
@@ -105,14 +102,14 @@ if __name__ == '__main__':
     train_samples_cnn_q = []
     train_samples_cnn_s = []
     for q in train_qset:
-        q_text= q['question']
+        q_text = q['question']
         q_words = q_text.split(' ')
 
         for s, l in zip(q['sentences'], q['labels']):
             s_words = s.split(' ')
             train_labels_cnn.append(l)
-            train_samples_cnn_q.append(Utils.build_text_image(w, q_words, padding=40))
-            train_samples_cnn_s.append(Utils.build_text_image(w, s_words, padding=40))
+            train_samples_cnn_q.append(ModelUtils.build_text_image(w, q_words, padding=40))
+            train_samples_cnn_s.append(ModelUtils.build_text_image(w, s_words, padding=40))
 
     train_samples_cnn = [np.array(train_samples_cnn_q), np.array(train_samples_cnn_s)]
 
@@ -125,8 +122,8 @@ if __name__ == '__main__':
         for s, l in zip(q['sentences'], q['labels']):
             s_words = s.split(' ')
             dev_labels_cnn.append(l)
-            dev_samples_cnn_q.append(Utils.build_text_image(w, q_words, padding=40))
-            dev_samples_cnn_s.append(Utils.build_text_image(w, s_words, padding=40))
+            dev_samples_cnn_q.append(ModelUtils.build_text_image(w, q_words, padding=40))
+            dev_samples_cnn_s.append(ModelUtils.build_text_image(w, s_words, padding=40))
 
     dev_samples_cnn = [np.array(dev_samples_cnn_q), np.array(dev_samples_cnn_s)]
 
@@ -139,8 +136,8 @@ if __name__ == '__main__':
         for s, l in zip(q['sentences'], q['labels']):
             s_words = s.split(' ')
             test_labels_cnn.append(l)
-            test_samples_cnn_q.append(Utils.build_text_image(w, q_words, padding=40))
-            test_samples_cnn_s.append(Utils.build_text_image(w, s_words, padding=40))
+            test_samples_cnn_q.append(ModelUtils.build_text_image(w, q_words, padding=40))
+            test_samples_cnn_s.append(ModelUtils.build_text_image(w, s_words, padding=40))
 
     test_samples_cnn = [np.array(test_samples_cnn_q), np.array(test_samples_cnn_s)]
 
@@ -151,7 +148,7 @@ if __name__ == '__main__':
 
     for i in xrange(nb_epoch):
         cnn.fit(train_samples_cnn, train_labels_cnn, dev_samples_cnn, dev_labels_cnn,
-                accuracy_metric=Utils.mrr, q_list=dev_labels_grouped, nb_epoch=1)
+                accuracy_metric=ModelUtils.mrr, q_list=dev_labels_grouped, nb_epoch=1)
 
         train_cnn_preds = cnn.predict_proba(train_samples_cnn)
         dev_cnn_preds = cnn.predict_proba(dev_samples_cnn)
@@ -181,10 +178,10 @@ if __name__ == '__main__':
         y_pred_test = lr.model.predict_proba(test_lr_merged_samples)
         y_pred_test = np.array([j[-1] for j in y_pred_test])
 
-        dev_mrr = Utils.mrr(dev_labels_grouped, dev_labels_lr, y_pred_dev)
-        dev_map = Utils.map(dev_labels_grouped, dev_labels_lr, y_pred_dev)
-        test_mrr = Utils.mrr(test_labels_grouped, test_labels_lr, y_pred_test)
-        test_map = Utils.map(test_labels_grouped, test_labels_lr, y_pred_test)
+        dev_mrr = ModelUtils.mrr(dev_labels_grouped, dev_labels_lr, y_pred_dev)
+        dev_map = ModelUtils.map(dev_labels_grouped, dev_labels_lr, y_pred_dev)
+        test_mrr = ModelUtils.mrr(test_labels_grouped, test_labels_lr, y_pred_test)
+        test_map = ModelUtils.map(test_labels_grouped, test_labels_lr, y_pred_test)
 
         results.append(['epoch %d, dev map: %.2f mrr: %.2f, test map: %.2f mrr: %.2f' %
                        (i, dev_map, dev_mrr, test_map, test_mrr),
