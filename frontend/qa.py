@@ -3,7 +3,7 @@ import requests
 import json
 
 
-settings = json.load(open('../config.json'))
+settings = json.load(open('config.json'))
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
