@@ -1,5 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 
+
 class LRModel:
     def __init__(self):
         self.model = LogisticRegression(solver='lbfgs')

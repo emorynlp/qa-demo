@@ -79,8 +79,6 @@ class QueryExecutor:
         self.qp = QueryPreprocessor()
 
     def query_index(self, query, fields, top_k):
-        results = []
-
         query_body = {'query':
             {
                 'multi_match': {
@@ -91,18 +89,14 @@ class QueryExecutor:
             'size': top_k
         }
 
-        print query_body
-
         es_results = self.es.search(index=self.es_index, doc_type=self.es_type, body=query_body)
         s_results = []
 
         for j in es_results['hits']['hits'][:top_k]:
             di = dict()
-            print j['_source']
             di['article'] = j['_source']['article']
             di['section'] = j['_source']['section']
             di['text'] = j['_source']['text']
-            print j['_source']['text']
 
             if 'paragraph_id' in j['_source']:
                 di['paragraph_id'] = j['_source']['paragraph_id']
@@ -112,5 +106,4 @@ class QueryExecutor:
 
             s_results.append(di)
 
-        print len(s_results)
         return s_results

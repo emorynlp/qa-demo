@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, url_for, render_template, flash
+from flask import Flask, redirect, url_for, render_template, flash, request
 import requests
 import json
 
@@ -24,28 +24,19 @@ def show_entries():
 def show_results():
     payload = {
         'method': 'query',
-        'params': ['this is an example query'],
+        'params': [request.form['question']],
         'jsonrpc': '2.0',
         'id': 0,
     }
 
-    if request.form['question'] == "Python":
-        flash('text')
-    if request.form['question'] == "random":            
-        flash('what is going on')
-        flash('I dont know who I am')
-    # flash('text')
-
     response = requests.post(backend_url, data=json.dumps(payload), headers=backend_headers).json()
-    flash(response['result'])
 
-    # res = qe.query_index('when did world war 2 start', ['text'], 20)
+    # flash(response['result'])
 
-    # for r in res:
-    #     flash(r['text'])
+    for i in response['result']:
+        flash(i['text'])
 
     return redirect(url_for('show_entries'))
 
 if __name__ == '__main__':
-    # app.run(settings['frontend_host'], settings['frontend_port'])
-    app.run()
+    app.run(settings['frontend_host'], settings['frontend_port'])

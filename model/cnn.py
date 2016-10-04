@@ -1,13 +1,11 @@
 import logging
 import os
 from keras.layers.convolutional import *
-from keras.layers.core import Lambda, Activation, Reshape, Flatten
-from keras.models import Sequential
+from keras.layers.core import Activation, Reshape, Flatten
 from keras.layers.convolutional import MaxPooling2D
 from sklearn.metrics import accuracy_score
 from keras.layers import Input, merge
-from keras.models import Model
-import keras.backend as K
+from keras.models import Model, save_model, load_model
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,16 +75,15 @@ class ASSCNNModel:
         else:
             return (predictions > 0.5).astype('int32')
 
-
     def load_model(self, file_path):
         try:
-            self.model.load_weights(file_path)
+            self.model = load_model(file_path)
         except IOError:
             raise IOError("Can't load the file")
 
-    def save_model(self, name):
-        self.model.save_weights(name + '.model', overwrite=True)
-        logger.info(name + '.model')
+    def save_model(self, file_path):
+        save_model(self.model, file_path)
+        logger.info(file_path + '.model')
 
 
 class ATCNNModel:
@@ -140,10 +137,10 @@ class ATCNNModel:
 
     def load_model(self, file_path):
         try:
-            self.model.load_weights(file_path)
+            self.model = load_model(file_path)
         except IOError:
             raise IOError("Can't load the file")
 
-    def save_model(self, name):
-        self.model.save_weights(name + '.model', overwrite=True)
-        logger.info(name + '.model')
+    def save_model(self, file_path):
+        save_model(self.model, file_path)
+        logger.info(file_path + '.model')

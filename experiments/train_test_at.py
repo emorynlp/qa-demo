@@ -3,12 +3,20 @@ This script performs a full experiment on provided training data for AT task.
 Next, it evaluates the results on test data and shows top-k results.
 """
 
+fixed_seed_num = 1234
+import numpy as np
+np.random.seed(fixed_seed_num)
+import random
+random.seed(fixed_seed_num)
+import tensorflow
+tensorflow.set_random_seed(fixed_seed_num)
+
 import sys
 import cPickle as pickle
 import datetime
 from optparse import OptionParser
-import numpy as np
 import pickle
+from keras.models import save_model
 
 reload(sys)
 sys.path.insert(0, '../')
@@ -22,8 +30,6 @@ from model.idf import IDF
 from model.utils import ModelUtils
 from feature.sentence import SentenceFeature
 
-
-from pprint import pprint
 
 def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_filters, top, metric):
     if metric not in ['precision', 'recall', 'f1']:
@@ -155,6 +161,8 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
                 q_list=dev_labels_grouped,
                 nb_epoch=1, batch_size=batch_size)
 
+        cnn.save_model('cnnmodel_epoch_' + str(i) + '.model')
+
         train_cnn_preds = cnn.predict_proba(train_samples_cnn)
         dev_cnn_preds = cnn.predict_proba(dev_samples_cnn)
         test_cnn_preds = cnn.predict_proba(test_samples_cnn)
@@ -186,6 +194,15 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
         dev_e_results = ModelUtils.precision_recall_f1(dev_labels_grouped, dev_labels_lr, y_pred_dev)
         test_e_results = ModelUtils.precision_recall_f1(test_labels_grouped, test_labels_lr, y_pred_test)
 
+        if metric == 'precision':
+            sorted_dev = sorted(dev_e_results, key=lambda res: res[2], reverse=True)
+        elif metric == 'recall':
+            sorted_dev = sorted(dev_e_results, key=lambda res: res[3], reverse=True)
+        else:
+            sorted_dev = sorted(dev_e_results, key=lambda res: res[4], reverse=True)
+
+        pickle.dump((lr, sorted_dev[0][1]), open('lrmodel_epoch_' + str(i) + '.model', 'w'))
+
         for dev_i, test_i in zip(dev_e_results, test_e_results):
             results .append(('epoch %d, thre: %.2f, '
                              'dev prec: %.2f, rec: %.2f, f1: %.2f, '
@@ -203,17 +220,17 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
     for i in sorted_results[:top]:
         print 'LR, %s' % i[0]
 
-    # conf_dict = {'train_file': train_file,
-    #              'dev_file': dev_file,
-    #              'test_file': test_file,
-    #              'nb_epoch': nb_epoch,
-    #              'batch_size': batch_size,
-    #              's_size': s_size,
-    #              'nb_filters': nb_filters,
-    #              'metric': metric}
-    # filename = __file__.rstrip('.py') + '_' + datetime.datetime.now().strftime("%Y_%m_%d__%H_%M") + '_report.pickle'
-    #
-    # pickle.dump((conf_dict, results, sorted_results), open(filename, 'wb'), protocol=2)
+    conf_dict = {'train_file': train_file,
+                 'dev_file': dev_file,
+                 'test_file': test_file,
+                 'nb_epoch': nb_epoch,
+                 'batch_size': batch_size,
+                 's_size': s_size,
+                 'nb_filters': nb_filters,
+                 'metric': metric}
+    filename = __file__.rstrip('.py') + '_' + datetime.datetime.now().strftime("%Y_%m_%d__%H_%M") + '_report.pickle'
+
+    pickle.dump((conf_dict, results, sorted_results), open(filename, 'wb'), protocol=2)
 
 
 if __name__ == '__main__':

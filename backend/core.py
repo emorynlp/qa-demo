@@ -9,31 +9,13 @@ class BackendServer:
     @staticmethod
     @dispatcher.add_method
     def query(string):
-        raise NotImplementedError
+        return string
 
-    @staticmethod
     @dispatcher.add_method
-    def query_test():
+    def query_test(self):
         raise NotImplementedError
 
     @Request.application
     def application(self, request):
         response = JSONRPCResponseManager.handle(request.data, dispatcher)
         return Response(response.json, mimetype='application/json')
-
-
-class ATBackendServer(BackendServer):
-    """
-    Backend server for Answer Triggering task.
-    Source: <provide a url here>
-    """
-
-    @staticmethod
-    @dispatcher.add_method
-    def query(string):
-        return string
-
-    @staticmethod
-    @dispatcher.add_method
-    def query_test():
-        return True

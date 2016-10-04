@@ -15,7 +15,6 @@ import sys
 import cPickle as pickle
 import datetime
 from optparse import OptionParser
-import numpy as np
 import pickle
 
 reload(sys)
