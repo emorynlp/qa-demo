@@ -1,5 +1,6 @@
 from collections import defaultdict
 import numpy as np
+import cPickle as pickle
 
 
 class IDF:
@@ -25,8 +26,10 @@ class IDF:
     def __getitem__(self, k):
         return self.idf[k]
 
-    def load_model(self, filename):
-        pass
+    def load_model(self, file_path):
+        pickle_obj = pickle.load(open(file_path))
+        self.idf = pickle_obj[0]
+        self.stopwords = pickle_obj[1]
 
-    def save_model(self, filename):
-        pass
+    def save_model(self, file_path):
+        pickle.dump([self.idf, self.stopwords], open(file_path, 'w'))

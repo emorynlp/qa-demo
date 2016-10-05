@@ -8,11 +8,12 @@ class BackendServer:
 
     @staticmethod
     @dispatcher.add_method
-    def query(string):
-        return string
+    def query(q_string, results, context_length=None):
+        raise NotImplementedError
 
+    @staticmethod
     @dispatcher.add_method
-    def query_test(self):
+    def query_test():
         raise NotImplementedError
 
     @Request.application

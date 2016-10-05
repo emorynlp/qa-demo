@@ -10,3 +10,6 @@ class LRModel:
 
     def predict(self, x_test):
         return self.model.predict(x_test)
+
+    def predict_proba(self, x_test):
+        return self.model.predict_proba(x_test)

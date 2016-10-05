@@ -24,17 +24,21 @@ def show_entries():
 def show_results():
     payload = {
         'method': 'query',
-        'params': [request.form['question']],
+        'params': [request.form['question'], 10],
         'jsonrpc': '2.0',
         'id': 0,
     }
 
     response = requests.post(backend_url, data=json.dumps(payload), headers=backend_headers).json()
+    print response
 
     # flash(response['result'])
 
-    for i in response['result']:
-        flash(i['text'])
+    for paragraph in response['result']:
+        paragraph_text = ""
+        for sentence in paragraph:
+            paragraph_text += sentence['sentence'] + ' '
+        flash(paragraph_text)
 
     return redirect(url_for('show_entries'))
 

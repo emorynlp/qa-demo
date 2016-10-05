@@ -83,6 +83,7 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
 
     idf = IDF(stopwords)
     idf.fit(train_questions + dev_questions + test_questions)
+    idf.save_model('at_idf.model')
 
     # Prepare features (word overlapping etc for LR)
     sf = SentenceFeature(idf, stopwords)
@@ -161,7 +162,7 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
                 q_list=dev_labels_grouped,
                 nb_epoch=1, batch_size=batch_size)
 
-        cnn.save_model('cnnmodel_epoch_' + str(i) + '.model')
+        cnn.save_model('at_cnnmodel_epoch_' + str(i) + '.model')
 
         train_cnn_preds = cnn.predict_proba(train_samples_cnn)
         dev_cnn_preds = cnn.predict_proba(dev_samples_cnn)
@@ -201,7 +202,7 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
         else:
             sorted_dev = sorted(dev_e_results, key=lambda res: res[4], reverse=True)
 
-        pickle.dump((lr, sorted_dev[0][1]), open('lrmodel_epoch_' + str(i) + '.model', 'w'))
+        pickle.dump((lr, sorted_dev[0][1]), open('at_lrmodel_epoch_' + str(i) + '.model', 'w'))
 
         for dev_i, test_i in zip(dev_e_results, test_e_results):
             results .append(('epoch %d, thre: %.2f, '
