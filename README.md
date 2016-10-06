@@ -2,7 +2,7 @@
 
 ### Installation
 
-1. Prepare your working directory and download pretrained models
+* Prepare your working directory and download pretrained models
 
 ```
 bash prepare.sh
@@ -29,13 +29,14 @@ this will create `config.json` file that contains the configuration for the fram
 Two most important elements to modify are `frontend_key` and `word2vec_bin_file`. The former is a unique application key, the latter is the path where Google Word2Vec bin file is located (most likely `GoogleNews-vectors-negative300.bin"`).
 
 
-2. Install all requirements using `pip`
+* Install all requirements using `pip`
 
 ```
 pip install -r requirements.txt
 ```
 
-3. Install `tensorflow 0.10.0` 
+* Install `tensorflow 0.10.0` 
+
 [https://www.tensorflow.org/versions/r0.10/get_started/os_setup.html]
 (https://www.tensorflow.org/versions/r0.10/get_started/os_setup.html)
 
