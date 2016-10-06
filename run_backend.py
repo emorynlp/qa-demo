@@ -11,3 +11,4 @@ if __name__ == '__main__':
                               settings['elasticsearch_type'],
                               ['at_cnnmodel.model', 'at_lrmodel.model', 'at_idf.model'])
     run_simple(settings['backend_host'], settings['backend_port'], backend.application)
+    
