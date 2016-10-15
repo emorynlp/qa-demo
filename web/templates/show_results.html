@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block body %}
+  
+    <form action="{{ url_for('show_results') }}" method=post>
+      <dl>
+        <dt>
+        <dd><input type=text size=50 name=question class="mytext">
+        <dd><input type=submit name="action" value=search  class="mybutton" >       
+      </dl>
+    
+</br>
+</br>
+</br>
+<div class="dropdown">
+  <select class="dropbtn" name="number" >
+  <option value="select">Please Select</option>
+  <option value="10">10</option>
+  <option value="20">20</option>
+  <option value="50">50</option>
+  <option value="100">100</option>
+</select>
+
+</div>
+ <div class="dropdown">
+  <select class="dropbtn" name="tobeassigned" >
+  <option value="Placeholder">Place Holder</option>
+  <option value="Option1">Option 1</option>
+  <option value="Option2">Option 2</option>
+  <option value="Option3">Option 3</option>
+  <option value="Option4">Option 4</option>
+</select>
+
+</div>
+</form>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class=flash>       
+    {% for category, message in messages %}
+             
+         <div>   {% for sentence, style in message %}
+               <{{style}}>   {{ sentence }}  </{{style}}>
+                          
+                 {% endfor %}  </div>  
+     
+    {% endfor %}
+
+    </div>
+  {% endif %}
+{% endwith %}
+{% endblock %}
