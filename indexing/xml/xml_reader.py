@@ -1,12 +1,10 @@
 import io
 import sys
+from xml.etree import ElementTree as ET
+import pickle
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
-
-from xml.etree import ElementTree as ET
-from pprint import pprint
-import codecs
-import pickle
 
 
 class XMLReader:
@@ -34,16 +32,22 @@ class XMLReader:
                         current_section['paragraphs'].append(line.strip())
 
                 if line_type == 'ARTICLE_END':
-                    articles.append(current_article)
+                    if len(current_section['paragraphs']) > 0:
+                        current_article['sections'].append(current_section)
+
+                    if len(current_article['sections']) > 0:
+                        articles.append(current_article)
                     current_article = {}
 
                 if line_type == 'SECTION_START':
-                    current_article['sections'].append(current_section)
+                    if len(current_section['paragraphs']) > 0:
+                        current_article['sections'].append(current_section)
                     current_section = {'name': arg_dict.decode('utf-8'), 'paragraphs': []}
 
             return articles
 
-    def _extract_line_type(self, line):
+    @staticmethod
+    def _extract_line_type(line):
         if line.startswith('<doc id="'):
             return 'ARTICLE_START', ET.fromstring(line.encode('utf-8') + '</doc>').attrib
         elif line.startswith('</doc>'):

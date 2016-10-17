@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 from optparse import OptionParser
 import json
 import fnmatch
-import pickle
 from elasticsearch import Elasticsearch
 from collections import Counter
 
@@ -36,7 +38,7 @@ mapping = '''
           "lemma_text": {
             "type": "string"
           },
-          "stem_text": {
+          "token_text": {
             "type": "string"
           }
       }
@@ -45,10 +47,8 @@ mapping = '''
 }
 '''
 
-EXCLUDED_ARTICLE_PREFIXES = {'Wikipedia:'}
 
-
-def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_build_index, force_remove):
+def index_paragraphs(directory, json_suffix, es_host, es_index, es_type, b_build_index, force_remove):
     es = Elasticsearch(hosts=[es_host])
 
     if b_build_index:
@@ -58,12 +58,8 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
 
     matched_files = []
     for root, dir_names, file_names in os.walk(directory):
-        if pickle_suffix:
-            for filename in fnmatch.filter(file_names, pickle_suffix):
-                matched_files.append(os.path.join(root, filename))
-        else:
-            for filename in file_names:
-                matched_files.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(file_names, json_suffix):
+            matched_files.append(os.path.join(root, filename))
 
     all_files = len(matched_files)
     iteration = 0
@@ -72,22 +68,10 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
     sections_indexed = 0
     paragraphs_indexed = 0
 
-    print 'Using the following prefixes of excluded articles: %s' % EXCLUDED_ARTICLE_PREFIXES
-
     for f in matched_files:
-        articles = pickle.load(open(f))
+        articles = json.load(open(f))
         for article in articles:
             all_articles += 1
-
-            # Articles to omit from predefined list
-            omit_this = False
-            for prefix in EXCLUDED_ARTICLE_PREFIXES:
-                if article['article'].startswith(prefix):
-                    omit_this = True
-                    break
-
-            if omit_this:
-                continue
 
             # Counter to track duplicated section names (for instance if an article contains two 'History'
             # sections, the second one will have 'History_2' etc.
@@ -95,25 +79,27 @@ def index_paragraphs(directory, pickle_suffix, es_host, es_index, es_type, b_bui
             articles_indexed += 1
 
             for section in article['sections']:
-                sections_id[section['name']] += 1
+                sections_id[section['section']] += 1
                 sections_indexed += 1
 
                 par_id = 1
 
                 # Set this additional anti-duplicated suffix if necessary (only for duplicates)
-                if section['name'] in sections_id and sections_id[section['name']] > 1:
-                    section_suffix = sections_id[section['name']]
+                if section['section'] in sections_id and sections_id[section['section']] > 1:
+                    section_suffix = sections_id[section['section']]
                 else:
                     section_suffix = ''
 
-                for text, lemma in zip(section['paragraphs'], section['paragraphs_tokenized']):
+                for text, token_text, lemma_text in zip(section['paragraphs'], section['paragraphs_tokenized'],
+                                                        section['paragraphs_lemmatized']):
                     paragraphs_indexed += 1
                     body = {'text': query_preprocessor.fix_spacing(text),
-                            'lemma_text': query_preprocessor.fix_spacing(lemma),
+                            'token_text': query_preprocessor.fix_spacing(token_text),
+                            'lemma_text': query_preprocessor.fix_spacing(lemma_text),
                             'article': article['article'],
-                            'section': section['name'] + str(section_suffix),
+                            'section': section['section'] + str(section_suffix),
                             'paragraph_id': article['article'].replace(' ', '_') + '-' +
-                                            section['name'].replace(' ', '_') + '-' + str(par_id+1)}
+                                            section['section'].replace(' ', '_') + '-' + str(par_id+1)}
 
                     es.index(index=es_index, doc_type=es_type,
                              body=body,
@@ -144,12 +130,12 @@ if __name__ == '__main__':
                       action='store',
                       dest='directory',
                       default=None,
-                      help="Directory with pickle files")
+                      help="Directory with json files")
     parser.add_option('-s', '--suffix',
                       action='store',
                       dest='file_suffix',
                       default=None,
-                      help="Suffix for pickles that will be considered in `directory' (Unix wildcard)")
+                      help="Suffix for json files that will be considered in `directory' (Unix wildcard)")
     parser.add_option('-e', '--elasticserver',
                       action='store',
                       dest='es_server',
@@ -174,8 +160,9 @@ if __name__ == '__main__':
                                                                                           'be deleted even if exists')
     (options, args) = parser.parse_args()
 
-    if not options.directory or not options.es_server or not options.es_index:
-        raise ValueError('Pass \'-d\', \'-e\', \'-i\' and \'-t\' options')
+    if not options.directory or not options.es_server or not options.es_index or not options.file_suffix \
+            or not options.es_type:
+        raise ValueError('Pass \'-d\', \'s\', \'-e\', \'-i\' and \'-t\' options')
 
     index_paragraphs(options.directory, options.file_suffix, options.es_server, options.es_index, options.es_type,
                      options.build_index, options.force_remove)
