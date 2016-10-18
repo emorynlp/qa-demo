@@ -1,4 +1,5 @@
-from flask import Flask, redirect, url_for, render_template, flash, request, send_from_directory, Markup, make_response
+from flask import Flask, render_template, request, send_from_directory, Markup, make_response
+from wtforms import Form, StringField
 import requests
 import json
 
@@ -35,7 +36,7 @@ def process_query(question, window_size, page=1):
 
     response = requests.post(backend_url, data=json.dumps(payload), headers=backend_headers).json()
 
-    flashes = []
+    paragraphs = []
 
     for paragraph in response['result']:
         answer_indices = [i for i, x in enumerate(paragraph) if x['is_answer'] == 1]
@@ -55,16 +56,18 @@ def process_query(question, window_size, page=1):
                         paragraph[pos_i]['sentence'] = '<window>' + paragraph[pos_i]['sentence'] + '</window>'
 
         paragraph_text = ' '.join(i['sentence'] for i in paragraph)
-        flashes.append(Markup(paragraph_text))
+        paragraphs.append(Markup(paragraph_text))
 
-    return flashes
+    return paragraphs
 
 
 @app.route('/results', methods=['POST'])
 def show_results():
     paragraphs = process_query(request.form['question'], int(request.form['window_size']), 1)
 
-    response = make_response(render_template('show_results.html', paragraphs=paragraphs, page_active=1))
+    response = make_response(render_template('show_results.html', paragraphs=paragraphs, page_active=1,
+                                             question_string=request.form['question'],
+                                             window_selected=int(request.form['window_size'])))
     response.set_cookie('question', value=request.form['question'])
     response.set_cookie('window_size', value=request.form['window_size'])
     return response
@@ -76,7 +79,9 @@ def show_results_page(page):
     window_size = request.cookies.get('window_size')
 
     paragraphs = process_query(question, int(window_size), page)
-    response = make_response(render_template('show_results.html', paragraphs=paragraphs, page_active=page))
+    response = make_response(render_template('show_results.html', paragraphs=paragraphs, page_active=page,
+                                             question_string=question,
+                                             window_selected=int(window_size)))
     return response
 
 
