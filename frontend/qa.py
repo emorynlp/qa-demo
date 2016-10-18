@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, send_from_directory, Markup, make_response
-from wtforms import Form, StringField
 import requests
 import json
 
