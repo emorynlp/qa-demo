@@ -1,5 +1,5 @@
 body {
-  font-family: sans-serif; 
+  font-family: arial,sans-serif;
   background: #fff; 
 }
 
@@ -37,7 +37,7 @@ body {
   background: white;
 }
                   
-.flash { 
+.paragraph {
   background: #fdfdfd;
   padding: 1em;
   border: 1px solid #d9d9d9;
@@ -64,11 +64,22 @@ body {
   border: none;
 }
 
-.flash window {
+.paragraph window {
   background-color: yellow
 }
 
-.flash answer {
+.paragraph answer {
   border: 1px solid grey;
   background-color: yellowgreen
+}
+
+.result-pages {
+  color: grey;
+  font-size: 14px;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.result-pages a {
+  color: #4285f4;
 }

@@ -3,7 +3,7 @@
   
 <form action="{{ url_for('show_results') }}" method=post>
   <div>
-    <input type="image" name="action" src="images/sb.jpg" class="top-bar-button" />
+    <input type="image" name="action" src="/images/sb.jpg" class="top-bar-button" />
     <div class="top-bar">
       <input type="text" name=question class="top-bar-text" />
     </div>
@@ -21,12 +21,72 @@
   </div>
 </form>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for message in get_flashed_messages() %}
-      <div class=flash>{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+{% for p in paragraphs %}
+  <div class=paragraph>{{ p }}</div>
+{% endfor %}
+
+{% if paragraphs %}
+  <div class="result-pages">
+    {% if page_active != 1 %}
+      <a href="{{ url_for('show_results_page', page=1) }}">1</a>&nbsp;&nbsp;
+    {% else %}
+      1&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 2 %}
+      <a href="{{ url_for('show_results_page', page=2) }}">2</a>&nbsp;&nbsp;
+    {% else %}
+      2&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 3 %}
+      <a href="{{ url_for('show_results_page', page=3) }}">3</a>&nbsp;&nbsp;
+    {% else %}
+      3&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 4 %}
+      <a href="{{ url_for('show_results_page', page=4) }}">4</a>&nbsp;&nbsp;
+    {% else %}
+      4&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 5 %}
+      <a href="{{ url_for('show_results_page', page=5) }}">5</a>&nbsp;&nbsp;
+    {% else %}
+      5&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 6 %}
+      <a href="{{ url_for('show_results_page', page=6) }}">6</a>&nbsp;&nbsp;
+    {% else %}
+      6&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 7 %}
+      <a href="{{ url_for('show_results_page', page=7) }}">7</a>&nbsp;&nbsp;
+    {% else %}
+      7&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 8 %}
+      <a href="{{ url_for('show_results_page', page=8) }}">8</a>&nbsp;&nbsp;
+    {% else %}
+      8&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 9 %}
+      <a href="{{ url_for('show_results_page', page=9) }}">9</a>&nbsp;&nbsp;
+    {% else %}
+      9&nbsp;&nbsp;
+    {% endif %}
+
+    {% if page_active != 10 %}
+      <a href="{{ url_for('show_results_page', page=10) }}">10</a>&nbsp;&nbsp;
+    {% else %}
+      10&nbsp;&nbsp;
+    {% endif %}
+  </div>
+{% endif %}
+
 {% endblock %}
-g

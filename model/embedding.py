@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from scipy import spatial
+import cPickle as pickle
 
 reload(sys)
 sys.setdefaultencoding('UTF-8')
@@ -8,8 +9,12 @@ sys.setdefaultencoding('UTF-8')
 
 class Word2Vec:
     def __init__(self, word2vec_filename, vocabulary):
+        if word2vec_filename is None:
+            return
+
         self.filename = word2vec_filename
         self.vocabulary = vocabulary
+        self.word_vectors = None
         self._load_base_file()
         self._add_unknown_words()
 
@@ -74,3 +79,13 @@ class Word2Vec:
             similarity_list.append((w, 1 - spatial.distance.cosine(self.word_vectors[w], word)))
 
         return (sorted(similarity_list, key=lambda x: x[1]))[:n]
+
+    def load_model(self, file_path):
+        pickle_obj = pickle.load(open(file_path))
+        print 'loaded %d vectors from %s' % (len(pickle_obj[1]), file_path)
+        self.vocabulary = pickle_obj[0]
+        self.word_vectors = pickle_obj[1]
+
+    def save_model(self, file_path):
+        print 'dumping %d vectors into %s' % (len(self.word_vectors), file_path)
+        pickle.dump([self.vocabulary, self.word_vectors], open(file_path, 'w'), protocol=2)

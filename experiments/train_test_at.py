@@ -109,6 +109,7 @@ def pipeline(train_file, dev_file, test_file, nb_epoch, batch_size, s_size, nb_f
         test_labels_grouped.append(i['labels'])
 
     w = Word2Vec('/mnt/ainos-research/tjurczyk/GoogleNews-vectors-negative300.bin', vocabulary)
+    w.save_model('at_embeddingmodel.model')
 
     train_samples_cnn_q = []
     train_samples_cnn_s = []

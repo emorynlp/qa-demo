@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, flash, request, send_from_directory, Markup
+from flask import Flask, redirect, url_for, render_template, flash, request, send_from_directory, Markup, make_response
 import requests
 import json
 
@@ -25,20 +25,17 @@ def show_entries():
     return render_template('show_results.html')
 
 
-@app.route('/show', methods=['POST'])
-def show_results():
+def process_query(question, window_size, page=1):
     payload = {
         'method': 'query',
-        'params': [request.form['question'], 10],
+        'params': [question, 10, page-1],
         'jsonrpc': '2.0',
         'id': 0,
     }
 
-    window_size = int(request.form['window_size'])
     response = requests.post(backend_url, data=json.dumps(payload), headers=backend_headers).json()
-    # print response
 
-    # response['result'][4][1]['is_answer'] = 1
+    flashes = []
 
     for paragraph in response['result']:
         answer_indices = [i for i, x in enumerate(paragraph) if x['is_answer'] == 1]
@@ -58,15 +55,30 @@ def show_results():
                         paragraph[pos_i]['sentence'] = '<window>' + paragraph[pos_i]['sentence'] + '</window>'
 
         paragraph_text = ' '.join(i['sentence'] for i in paragraph)
+        flashes.append(Markup(paragraph_text))
 
-        # for sentence in paragraph:
-        #     if sentence['is_answer'] == 0:
-        #         paragraph_text += sentence['sentence'] + ' '
-        #     else:
-        #         paragraph_text += '<window>' + sentence['sentence'] + '</window> '
-        flash(Markup(paragraph_text))
+    return flashes
 
-    return redirect(url_for('show_entries'))
+
+@app.route('/results', methods=['POST'])
+def show_results():
+    paragraphs = process_query(request.form['question'], int(request.form['window_size']), 1)
+
+    response = make_response(render_template('show_results.html', paragraphs=paragraphs, page_active=1))
+    response.set_cookie('question', value=request.form['question'])
+    response.set_cookie('window_size', value=request.form['window_size'])
+    return response
+
+
+@app.route('/results/<int:page>', methods=['GET'])
+def show_results_page(page):
+    question = request.cookies.get('question')
+    window_size = request.cookies.get('window_size')
+
+    paragraphs = process_query(question, int(window_size), page)
+    response = make_response(render_template('show_results.html', paragraphs=paragraphs, page_active=page))
+    return response
+
 
 if __name__ == '__main__':
     app.run(settings['frontend_host'], settings['frontend_port'])

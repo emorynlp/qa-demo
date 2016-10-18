@@ -8,7 +8,7 @@ class BackendServer:
 
     @staticmethod
     @dispatcher.add_method
-    def query(q_string, results, context_length=None):
+    def query(q_string, results, page):
         raise NotImplementedError
 
     @staticmethod

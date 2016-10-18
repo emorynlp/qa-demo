@@ -78,15 +78,17 @@ class QueryExecutor:
         self.es = Elasticsearch(hosts=[self.es_server, ])
         self.qp = QueryPreprocessor()
 
-    def query_index(self, query, fields, top_k):
-        query_body = {'query':
+    def query_index(self, query, fields, top_k, from_hit=0):
+        query_body = {
+            'from': from_hit,
+            'size': top_k,
+            'query':
             {
                 'multi_match': {
                     'query': self.qp.preprocess_query(query),
                     'fields': fields
                 }
-            },
-            'size': top_k
+            }
         }
 
         es_results = self.es.search(index=self.es_index, doc_type=self.es_type, body=query_body)

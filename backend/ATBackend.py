@@ -12,6 +12,8 @@ from model.idf import IDF
 from model.utils import ModelUtils
 from model.embedding import Word2Vec
 
+from pprint import pprint
+
 
 class ATBackendServer(BackendServer):
     """
@@ -42,17 +44,17 @@ class ATBackendServer(BackendServer):
         ATBackendServer.idf = IDF(None)
         ATBackendServer.idf.load_model(models[2])
         ATBackendServer.sentence_feature = SentenceFeature(ATBackendServer.idf, ATBackendServer.idf.stopwords)
-
-        # FIXME: provide a vocabulary from training here
-        ATBackendServer.embedding = Word2Vec(settings['word2vec_bin_file'], [])
+        ATBackendServer.embedding = Word2Vec(None, [])
+        ATBackendServer.embedding.load_model(models[3])
         BackendServer.__init__(self)
 
     @staticmethod
     @dispatcher.add_method
-    def query(q_string, results, context_window=None):
+    def query(q_string, results, page):
         q_tokens = [i.text for i in ATBackendServer.tokenizer(q_string)]
         q_tokens_lemma = [i.lemma_ for i in ATBackendServer.tokenizer(q_string)]
-        es_results = ATBackendServer.query_executor.query_index(' '.join(q_tokens_lemma), ['lemma_text'], results)
+        es_results = ATBackendServer.query_executor.query_index(' '.join(q_tokens_lemma), ['lemma_text'], results,
+                                                                page*10)
         r_paragraphs = []
 
         cnn_samples_q, cnn_samples_s, lr_samples = [], [], []
@@ -81,7 +83,12 @@ class ATBackendServer(BackendServer):
 
         lr_predictions = ATBackendServer.lr_model.predict_proba(lr_samples)
 
+
+
+        pprint(r_paragraphs)
+
         # Assign key 'is_answer' to each sentence in all paragraphs
+        print lr_predictions
         prediction_index = 0
         for paragraphs in r_paragraphs:
             for sen_dict in paragraphs:
