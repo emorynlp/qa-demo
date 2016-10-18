@@ -1,42 +1,32 @@
 {% extends "layout.html" %}
 {% block body %}
   
-    <form action="{{ url_for('show_results') }}" method=post>
-      <dl>
-        <dt>Type your question here:
-        <dd><input type=text size=50 name=question class="mytext">
-        <dd><input type=submit name="action" value=search  class="mybutton" >       
-      </dl>
-    </form>
-</br>
-</br>
-</br>
- <div class="dropdown">
-  <button class="dropbtn">Dropdown1</button>
-  <div class="dropdown-content">
-    <a href="#">Option 1</a>
-    <a href="#">Option 2</a>
-    <a href="#">Option 3</a>
+<form action="{{ url_for('show_results') }}" method=post>
+  <div>
+    <input type="image" name="action" src="images/sb.jpg" class="top-bar-button" />
+    <div class="top-bar">
+      <input type="text" name=question class="top-bar-text" />
+    </div>
   </div>
-</div>
-<div class="dropdown">
-  <button class="dropbtn">Dropdown2</button>
-  <div class="dropdown-content">
-    <a href="#">Option 1</a>
-    <a href="#">Option 2</a>
-    <a href="#">Option 3</a>
-  </div>
-</div>
-<div class="dropdown">
-  <button class="dropbtn">Dropdown3</button>
-  <div class="dropdown-content">
-    <a href="#">Option 1</a>
-    <a href="#">Option 2</a>
-    <a href="#">Option 3</a>
-  </div>
-</div>
-  {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
-  {% endfor %}
 
+  <div class="dropdowns">
+    <div class="dropdown">
+      <select class="dropdown-button" name="window_size" >
+        <option value="0">Window size</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+      </select>
+    </div>
+  </div>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for message in get_flashed_messages() %}
+      <div class=flash>{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 {% endblock %}
+g

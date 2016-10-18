@@ -51,7 +51,8 @@ class ATBackendServer(BackendServer):
     @dispatcher.add_method
     def query(q_string, results, context_window=None):
         q_tokens = [i.text for i in ATBackendServer.tokenizer(q_string)]
-        es_results = ATBackendServer.query_executor.query_index(' '.join(q_tokens), ['text'], results)
+        q_tokens_lemma = [i.lemma_ for i in ATBackendServer.tokenizer(q_string)]
+        es_results = ATBackendServer.query_executor.query_index(' '.join(q_tokens_lemma), ['lemma_text'], results)
         r_paragraphs = []
 
         cnn_samples_q, cnn_samples_s, lr_samples = [], [], []
